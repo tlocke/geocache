@@ -1,3 +1,6 @@
+import re
+
+
 to_decode = ".--.--.--.-...-.--....-...-..-.-.------.--...-..-.-.---...--." \
     "--..-.---..-----..-..-...--.-........"
 
@@ -56,14 +59,47 @@ mmap = {
 items = tuple((m, char.lower(), len(m)) for m, char in mmap.items())
 
 words = list(
-    w.strip().lower() for w in open('/usr/share/dict/words')
+    w.strip().lower() for w in open('/usr/share/dict/cracklib-small')
     if len(w.strip()) > 2 or w.strip().lower() in ('i', 'a'))
 # words.append('www')
+og = open('/home/tlocke/geocache/morse/ogdens.txt').read()
+words = re.findall(r"[\w']+", og)
+extra = {
+    '-----': '0',
+    '.----': '1',
+    '..---': '2',
+    '...--': '3',
+    '....-': '4',
+    '.....': '5',
+    '-....': '6',
+    '--...': '7',
+    '---..': '8',
+    '----.': '9',
+    '.-.-.-': '.',
+    '--..--': ',',
+    '---...': ':',
+    '..--..': '?',
+    '.----.': "'",
+    '-....-': '-',
+    '-..-.': '/',
+    '-.--.-': '(',
+    '.-..-.': '"',
+    '.--.-.': '@',
+    '-...-': '='}
+for morse, alpha in extra.items():
+    words.append(alpha)
+words.append('www')
+'''
+words = list(
+    w.strip().lower() for w in og.
+    if len(w.strip()) > 2 or w.strip().lower() in ('i', 'a'))
+'''
 
 tree = {'char': '', 'pos': 0, 'children': [], 'parent': None}
 
 
 def add_nodes(parent):
+    ws = 0
     pos = parent['pos']
     children = parent['children']
     chars = []
@@ -79,6 +115,13 @@ def add_nodes(parent):
             'char': ' ', 'pos': pos, 'children': [], 'parent': parent}
         children.append(child)
         add_nodes(child)
+
+    par = parent
+    while par is not None:
+        if par['char'] == ' ':
+            ws += 1
+        par = par['parent']
+
     '''
     chars = []
     par = parent
@@ -87,8 +130,8 @@ def add_nodes(parent):
         par = par['parent']
     print(''.join(chars))
     '''
-    if pos == len(to_decode):
-        if len(children) > 0:
+    if pos == len(to_decode) or ws > 4:
+        if len(children) > 0 or ws > 4:
             chars = []
             par = parent
             while par is not None:
@@ -107,3 +150,7 @@ def add_nodes(parent):
                 add_nodes(child)
 
 add_nodes(tree)
+'''
+for morse, alpha, lenalpha in items:
+    print('(', morse, ' to ', alpha, ') ', to_decode.replace(morse, alpha))
+'''
