@@ -1,4 +1,3 @@
-from ast import parse
 from itertools import permutations
 
 
@@ -24,7 +23,7 @@ conditions_str = [
 def find_heads(heads, conditions_str):
     cond_str = conditions_str.pop()
     python_str = cond_str.replace("x", "*").replace("=", "==")
-    cond = compile(parse(python_str), "<string>", "eval")
+    cond = compile(python_str, "<string>", "eval")
     new_heads = []
     print(len(heads), cond_str)
     for head in heads:
